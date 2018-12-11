@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+      "module": "commonjs",
+      "experimentalDecorators": true,
+      "emitDecoratorMetadata": true,
+      "allowJs": true,
+      "target": "es6",
+      "moduleResolution": "node",
+      "outDir": "build",
+  }
+}
