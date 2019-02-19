@@ -18,9 +18,7 @@ export class FileService {
   }
 
   public async create(name, url) {
-    const FileModel = File.getModel();
-
-    let fileModel = new FileModel({
+    let fileModel = new File({
       name: name,
       size: 0,
       url: url,
@@ -30,21 +28,28 @@ export class FileService {
   }
 
   public async findById(id) {
-    const FileModel = File.getModel();
-    return await FileModel.findById(id);
+    return await File.findById(id);
   }
 
   public async delete(id) {
-    const FileModel = File.getModel();
-    let file = await this.findById(id);
+    let file: any = await this.findById(id);
 
     if(file) {
-      await FileModel.deleteOne({_id: id});
+      await File.deleteOne({_id: id});
 
       if(fs.existsSync(file.getPath())) {
         fs.unlinkSync(file.getPath());
       }
     }
+  }
+
+  private getStreamInfo(range, fileSize) {
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize-1;
+    const chunksize = (end-start)+1;
+
+    return { parts, start, end, chunksize };
   }
 
   public getFilesInDirectory() {

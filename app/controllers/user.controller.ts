@@ -9,15 +9,11 @@ export default class UserController {
 
   public static async login(req: Request, res: Response) {
     let userService: UserService = UserService.getInstance();
-    let jwtService: JwtService = JwtService.getInstance();
     
     try {
-      let user = await userService.login(req.body.username, req.body.password);
-      const token = jwtService.generateKey({user_id: user._id, role: user.role, type: 20});
+      let struct = await userService.login(req.body.username, req.body.password);
 
-      user.password = undefined;
-
-      res.status(201).json({user: user, token: token});
+      res.status(201).json(struct);
     } catch (err) {
       res.status(500).json({err: err.message || err});
     }
@@ -29,10 +25,12 @@ export default class UserController {
     let jwtService: JwtService = JwtService.getInstance();
 
     try {
-      if(!invitationService.invitationIsClosed(req.body.token)) {
+      let invitationIsClosed = await invitationService.isClosed(req.body.token);
+
+      if(!invitationIsClosed) {
         let tokenData = jwtService.verify(req.body.token);
-        let user = await userService.create(req.body.username, req.body.password, tokenData['role'], tokenData['is_adult']);
-        await invitationService.closeInvitation(req.body.token);
+        let user = await userService.create(req.body.username, req.body.password, 2, false);
+        await invitationService.close(req.body.token);
 
         res.status(201).json({user: user});
       } else {
@@ -64,6 +62,18 @@ export default class UserController {
       const users = await userService.findAll();
 
       res.status(200).json({users: users});
+    } catch (err) {
+      res.status(500).json({err: err.message || err});
+    }
+  }
+
+  public static async update(req: Request, res: Response) {
+    let userService: UserService = UserService.getInstance();
+
+    try {
+      const user = await userService.update(req.params.id, req.body);
+
+      res.status(200).json({user: user});
     } catch (err) {
       res.status(500).json({err: err.message || err});
     }

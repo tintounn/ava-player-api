@@ -1,4 +1,4 @@
-import Invitation from "../models/invitation.model";
+import InvitationModel from "../models/invitation.model";
 import {randomString} from "../utils";
 import JwtService from "./jwt.service";
 
@@ -18,12 +18,9 @@ export default class InvitationService {
 
   public async createInvitation() {
     let jwtService = JwtService.getInstance();
-    let InvitationModel = Invitation.getModel();
 
     let invitation = await (new InvitationModel({token: jwtService.generateKey({
-      role: 2,
-      is_adult: false,
-      type: 10
+      type: JwtService.INVITATION_TOKEN
     })})).save();
 
     if(!invitation) {
@@ -33,17 +30,14 @@ export default class InvitationService {
     return invitation;
   }
 
-  public async invitationIsClosed(token) {
-    let InvitationModel = Invitation.getModel();
+  public async isClosed(token) {
     let invitation = await InvitationModel.findOne({token: token, used: true});
 
     return invitation != null;
   }
 
-  public async closeInvitation(token) {
-    let InvitationModel = Invitation.getModel();
-    let invitation = await InvitationModel.findOne({token: token});
-  
+  public async close(token) {
+    let invitation: any = await InvitationModel.findOne({token: token});  
     invitation.used = true;
 
     return await invitation.save();

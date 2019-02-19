@@ -1,20 +1,15 @@
-import { prop, Typegoose, ModelType, InstanceType, pre } from 'typegoose';
-import {randomString} from "../utils";
+import * as mongoose from "mongoose";
+import { join } from 'path';
 
-class Invitation extends Typegoose {
+const schema = new mongoose.Schema({
+  token: {type: String, required: true},
+  used: {type: Boolean, default: false},
+  inserted_at: Date,
+});
 
-  @prop({required: true})
-  token: string;
-
-  @prop({default: false})
-  used: boolean;
-
-  @prop({default: Date.now()})
-  inserted_at: Date;
-
-  public static getModel() {
-    return new Invitation().getModelForClass(typeof this);
-  }
+schema.methods.getPath = function() {
+  return join(this.directory, this.name);
 }
 
-export default Invitation;
+const InvitationModel = mongoose.model('Invitation', schema);
+export default InvitationModel;

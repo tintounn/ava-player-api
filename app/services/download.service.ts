@@ -44,7 +44,7 @@ export class DownloadService {
 
   private next() {
     if(this.downloadInProgress.length >= this.downloadLimit || this.downloadQueue.length == 0) {
-     return;
+      return;
     }
 
     let download = this.downloadQueue.shift();

@@ -2,6 +2,9 @@ import * as jsonwebtoken from "jsonwebtoken";
 
 export default class JwtService {
 
+  public static readonly INVITATION_TOKEN = 10;
+  public static readonly USER_TOKEN = 20;
+
   private static instance : JwtService;
 
   private readonly secretKey: string;

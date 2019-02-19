@@ -1,38 +1,20 @@
+import * as mongoose from "mongoose";
 import { join } from 'path';
-import { prop, Typegoose, ModelType, InstanceType, pre, instanceMethod } from 'typegoose';
 
+const schema = new mongoose.Schema({
+  name: {type: String, required: true},
+  url: String,
+  directory: String,
+  size: {type: Number, required: true},
+  status: {type: Number, default: 1},
+  inserted_at: Date,
+  updated_at: Date,
+});
 
-class File extends Typegoose {
-
-  @prop({required: true})
-  name: string;
-
-  @prop()
-  url: string;
-
-  @prop({required: false})
-  directory: string;
-
-  @prop({required: true})
-  size: number;
-
-  @prop({default: 1})
-  status: number;
-
-  @prop({default: Date.now()})
-  inserted_at: Date;
-
-  @prop({default: Date.now()})
-  updated_at: Date;
-
-  @instanceMethod
-  getPath(this: InstanceType<File>) {
-    return join(this.directory, this.name);
-  }
-
-  public static getModel() {
-    return new File().getModelForClass(typeof this);
-  }
+schema.methods.getPath = function() {
+  return join(this.directory, this.name);
 }
 
-export default File;
+const FileModel = mongoose.model('File', schema);
+
+export default FileModel;

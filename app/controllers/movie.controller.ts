@@ -1,15 +1,14 @@
 import { Response, Request } from "express";
 import TMDBService from "../services/tmdb.service";
-import {MovieService} from "../services/movie.service";
+import { MovieService } from "../services/movie.service";
 import { FileService } from "../services/file.service";
+import StreamService from "../services/stream.service";
 
 export default class MovieController {
 
   public static async search(req: Request, res: Response) {
-    const query = req.query.query;
+    const query = req.query['like'];
     let tmdbService = TMDBService.getInstance();
-
-    console.log('HEYT');
 
     try {
       const movies = await tmdbService.searchMovie(query);
@@ -36,7 +35,7 @@ export default class MovieController {
     const movieService = MovieService.getInstance();
 
     try {
-      const movies = await movieService.findAll();
+      const movies = await movieService.findAll(req.query['like']);
 
       res.status(200).json({movies: movies});
     } catch(err) {
@@ -57,12 +56,19 @@ export default class MovieController {
   }
 
   public static async stream(req: Request, res: Response) {
-    const fileService = FileService.getInstance();
+    const movieService = MovieService.getInstance();
+    const streamService = StreamService.getInstance();
+
+    const fileId: string = req.params.id;
+    const range: any = req.headers.range;
 
     try {
-   //   const stream = fileService.stream(req.params.id);
-    } catch (error) {
-      
+      const stream : any = await streamService.stream(fileId, 0, range);
+      res.writeHead(206, stream.header);
+      stream.readStream.pipe(res);
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({err: err.message || err});
     }
   }
 }

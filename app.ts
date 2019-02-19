@@ -2,26 +2,24 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import * as cors from "cors";
 import * as http from "http";
+import * as io from "socket.io";
 
 import MongoDB from "./app/mongo";
 
-import File from "./app/models/file.model";
-import Movie from "./app/models/file.model";
-
-import CoreController from "./app/controllers/core.controller";
 import UserController from "./app/controllers/user.controller";
 import MovieController from "./app/controllers/movie.controller";
 import InvitationController from "./app/controllers/invitation.controller";
-import User from "./app/models/user.model";
+import UserModel from "./app/models/user.model";
 import UserService from "./app/services/user.service";
 
 class App {
   
   private app: express.Application;
   private server: http.Server;
+  private io: io.Server;
 
   private hostname: string = process.env.HOSTNAME || "0.0.0.0";
-  private port: number = parseInt(process.env.PORT) || 8080;
+  private port: number = parseInt(process.env.PORT) || 8000;
 
   constructor() {
     this.app = express();
@@ -44,7 +42,6 @@ class App {
 
   private async setupAdmin() {
     let userService = UserService.getInstance();
-    let UserModel = User.getModel();
 
     let admin = await UserModel.findOne({username: 'admin'});
     if(!admin) {
@@ -59,11 +56,11 @@ class App {
     router.post('/valid', UserController.valid);
     router.post('/auth', UserController.login);
     router.get('/users', UserController.findAll);
+    router.put('/users/:id', UserController.update);
     router.post('/register', UserController.register);
 
     /* ##### INVITATIONS ##### */
     router.post('/invitations', InvitationController.create);
-
 
     /* ##### MOVIES ##### */
     router.get('/movies/search', MovieController.search);
@@ -86,6 +83,9 @@ class App {
       if(err) {
         throw new Error(err);
       } else {
+        this.io = io(this.server);
+        global['io'] = this.io; //BEURK UNE GLOBAL :/
+
         console.log(`Server launch on ${this.hostname}:${this.port}`);
       }
     });

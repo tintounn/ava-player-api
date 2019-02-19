@@ -60,10 +60,8 @@ export class MovieService {
 
       return ffmpegService.convert(file, {
         dest: MovieService.MOVIES_DIRECTORY,
-        ...ffmpegService.getConvertData(movie.height)
       });
-    }).then((res) => {
-      console.log(res);
+    }).then((res: any) => {
     }).catch(async (err) => {
       console.log(err);
       await this.delete(movie._id);
@@ -74,24 +72,20 @@ export class MovieService {
 
   public async delete(id) {
     const fileService = FileService.getInstance();
-    const MovieModel = Movie.getModel();
     const movie: any = await this.findById(id);
 
     if(movie) {
-      await MovieModel.deleteOne({_id: id});
+      await Movie.deleteOne({_id: id});
       await fileService.delete(movie.file._id);
     }
   }
 
   public async findById(id) {
-    const MovieModel = Movie.getModel();
-    return await MovieModel.findOne({_id: id});
+    return await Movie.findOne({_id: id}).populate('file');
   }
 
   private async create(data, file) {
-    const MovieModel = Movie.getModel();
-
-    let movie = new MovieModel({
+    let movie = new Movie({
       name: data.name,
       overview: data.overview,
       release_date: data.release_date,
@@ -105,8 +99,7 @@ export class MovieService {
     return await movie.save();
   }
 
-  public async findAll() {
-    const MovieModel = Movie.getModel();
-    return await MovieModel.find();
+  public async findAll(query: string = '') {
+    return await Movie.find({'name': {'$regex': query, '$options': 'i'}});
   }
 }

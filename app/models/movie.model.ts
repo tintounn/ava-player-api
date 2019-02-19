@@ -1,51 +1,21 @@
-import {prop, Typegoose, ModelType, InstanceType, pre, Ref} from 'typegoose';
-import {randomString} from "../utils";
-import File from "./file.model";
+import * as mongoose from "mongoose";
 
-class Movie extends Typegoose {
+const schema = new mongoose.Schema({
+  name: {type: String, required: true},
+  overview: {type: String, required: true},
+  release_date: {type: Date, required: false},
+  poster_path: {type: String, required: true},
+  background_path: {type: String},
+  adult: Boolean,
+  file: {type: mongoose.Schema.Types.ObjectId, ref: 'File'},
+  width: Number,
+  height: Number,
+  duration: Number,
+  tmdb_id: {type: Number, required: true},
+  inserted_at: Date,
+  updated_at: Date,
+});
 
-  @prop({required: true})
-  name: string;
+const MovieModel = mongoose.model('Movie', schema);
 
-  @prop({required: true})
-  overview: string;
-
-  @prop({required: false})
-  release_date: Date;
-
-  @prop({required: true})
-  poster_path: string;
-
-  @prop({required: true})
-  background_path: string;
-
-  @prop({required :true})
-  adult: boolean;
-
-  @prop({ref: File, required: true})
-  file: Ref<File>;
-
-  @prop()
-  width: number;
-
-  @prop()
-  height: number;
-
-  @prop()
-  duration: number;
-
-  @prop({required: true})
-  tmdb_id: number;
-
-  @prop({default: Date.now()})
-  inserted_at: Date;
-
-  @prop({default: Date.now()})
-  updated_at: Date;
-
-  public static getModel() {
-    return new Movie().getModelForClass(typeof this);
-  }
-}
-
-export default Movie;
+export default MovieModel;

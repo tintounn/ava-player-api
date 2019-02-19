@@ -1,43 +1,15 @@
-import * as crypto from "crypto";
-import { prop, Typegoose, ModelType, InstanceType, pre } from 'typegoose';
+import * as mongoose from "mongoose";
 
-@pre<User>("save", function(next) {
-  this.password = crypto.createHash('sha256').update(this.password).digest('hex');
-  next();
-})
-class User extends Typegoose {
+const schema = new mongoose.Schema({
+  username: {type: String, required: true, unique: true},
+  password: {type: String, required: true},
+  role: {type: Number, default: 2},
+  email: {type: String, required: true},
+  is_adult: {type: Boolean, default: false},
+  inserted_at: Date,
+  updated_at: Date
+});
 
-  @prop({required: true, unique: true})
-  username: string;
+const UserModel = mongoose.model('User', schema);
 
-  @prop({required: true})
-  password: string;
-
-  @prop({default: 2})
-  role: number;
-
-  @prop({required: true})
-  email: string;
-
-  @prop({default: false})
-  is_adult: boolean;
-
-  @prop({default: Date.now()})
-  inserted_at: Date;
-
-  @prop({default: Date.now()})
-  updated_at: Date;
-
-  public static getModel() {
-    return new User().getModelForClass(typeof this);
-  }
-}
-
-namespace User {
-  export enum Roles {
-    ADMIN = 1,
-    GUEST = 2
-  }
-}
-
-export default User;
+export default UserModel;
