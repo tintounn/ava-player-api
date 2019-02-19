@@ -5,6 +5,7 @@ import Movie from "../models/movie.model";
 import File from "../models/file.model";
 import {FileService} from "./file.service";
 import FFmpegService from './ffmpeg.service';
+import AlldebridService from './alldebrid.service';
 
 export class MovieService {
 
@@ -26,6 +27,9 @@ export class MovieService {
     const downloadService = DownloadService.getInstance();
     const fileService = FileService.getInstance();
     const ffmpegService = FFmpegService.getInstance();
+    const alldebridService = AlldebridService.getInstance();
+
+    data.url = await alldebridService.unlock(data.url).download;
 
     let movie: any = {};
     let file: any = {};

@@ -18,6 +18,8 @@
     "fluent-ffmpeg": "^2.1.2",
     "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.4.2",
+    "node-alldebrid": "^1.0.0",
+    "node-real-debrid": "^1.0.6",
     "reflect-metadata": "^0.1.12",
     "socket.io": "^2.2.0",
     "threads": "^0.12.0"
